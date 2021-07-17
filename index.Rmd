@@ -1,0 +1,13 @@
+---
+title: "RでGIS"
+author: "Kazuki Tamura"
+site: bookdown::bookdown_site
+output:
+  bookdown::gitbook: default
+---
+  
+# Hello World
+  
+Hi.
+
+Bye.
