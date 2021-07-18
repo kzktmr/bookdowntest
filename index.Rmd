@@ -1,13 +1,13 @@
 ---
 title: "RでGIS"
-author: "Kazuki Tamura"
+author: "Kazuki Tamura (@kzktmr)"
+date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output:
   bookdown::gitbook: default
 ---
-  
-# Hello World
-  
-Hi.
 
-Bye.
+# はじめに {-}
+
+この資料では，Rで地理情報データを扱う方法について，解説します。
+

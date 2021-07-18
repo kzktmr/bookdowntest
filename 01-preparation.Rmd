@@ -1,0 +1,18 @@
+# 事前準備
+
+## RとRstudioのインストール
+
+* [CRAN](https://cran.ism.ac.jp)からRをインストールしてください。
+* [RStudio](https://www.rstudio.com/products/rstudio/download/)からRStudio Desktop
+(Open Source License)をインストールしてください。
+
+## 使用するパッケージについて
+
+* [`tidyverse`](https://www.tidyverse.org)
+* [`sf`](https://r-spatial.github.io/sf/)
+
+などを使用する予定です。事前にインストールしておいてください。パッケージのインストールには，RStudioのPackagesパネルからInstallする方法や，コンソールに
+```{r install_package, eval=FALSE}
+install.packages("tidyverse")
+```
+と入力する方法がありますが，どちらでも構いません。

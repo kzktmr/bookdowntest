@@ -1,0 +1,40 @@
+# GISの基礎知識
+
+## GISデータのフォーマット
+
+現在流通しているGISデータのファイル形式のうち，代表的な以下の2つを紹介します。
+
+* シェープファイル
+* GeoJSON
+
+シェープファイルは現在デファクトスタンダードとなっているGISデータのファイル形式で，
+ESRI社（ArcGISなどのGIS製品で有名）によって開発・規格化されました。
+
+GeoJSONは，JSON（JavaScript Object Notation）を元に開発されたフォーマットです。
+GeoJSONのファイルはテキストファイルなので，テキストエディタで閲覧・編集することも可能です。
+
+### Simple Featuresとは
+
+Simple Features（正式にはSimple Feature Access）は，
+GISで使用される点・線・多角形などの幾何学図形からなるGISデータの，コンピュータ内部での保存およびアクセス方法に関する標準規格です。
+Open Geospatial Consortium (OGC)とInternational Organization for Standardization (ISO)によって規格化されています。
+
+このSimple Featuresを`R`で実現するためのパッケージが`sf`です。
+
+## 測地系
+
+
+* [日本の測地系](https://www.gsi.go.jp/sokuchikijun/datum-main.html)
+
+## 地図投影変換
+
+* [平面直角座標系](https://www.gsi.go.jp/sokuchikijun/jpc.html)
+
+### EPSGコード
+
+世界の様々な測地系や地図投影法に対して，ユニークなID 番号を振り分けたものです。
+International Association of Oil ＆ Gas Producers (IOGP）のGeomatics Committeeによって管理されています。
+[epsg.org](https://epsg.org)，[epsg.io](https://epsg.io)
+などのサイトでEPSGコードを検索することができます。
+
+
