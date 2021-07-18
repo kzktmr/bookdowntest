@@ -4,19 +4,19 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2 R | RでGIS</title>
-  <meta name="description" content="2 R | RでGIS" />
+  <title>2 GISの基礎知識 | RでGIS</title>
+  <meta name="description" content="2 GISの基礎知識 | RでGIS" />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2 R | RでGIS" />
+  <meta property="og:title" content="2 GISの基礎知識 | RでGIS" />
   <meta property="og:type" content="book" />
   
   
   
-  
+  <meta name="github-repo" content="kzktmr/giswithr" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 R | RでGIS" />
+  <meta name="twitter:title" content="2 GISの基礎知識 | RでGIS" />
   
   
   
@@ -24,15 +24,15 @@
 <meta name="author" content="Kazuki Tamura (@kzktmr)" />
 
 
-<meta name="date" content="2021-07-18" />
+<meta name="date" content="2021-07-19" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="事前準備.html"/>
-<link rel="next" href="コロプレスマップ塗り分け地図.html"/>
+<link rel="prev" href="01-preparation.html"/>
+<link rel="next" href="10-choropleth.html"/>
 <script src="libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -134,13 +134,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>はじめに</a></li>
-<li class="chapter" data-level="1" data-path="事前準備.html"><a href="事前準備.html"><i class="fa fa-check"></i><b>1</b> 事前準備</a></li>
-<li class="chapter" data-level="2" data-path="r.html"><a href="r.html"><i class="fa fa-check"></i><b>2</b> <em>R</em></a></li>
-<li class="chapter" data-level="3" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html"><i class="fa fa-check"></i><b>3</b> コロプレス・マップ（塗り分け地図）</a>
+<li class="chapter" data-level="1" data-path="01-preparation.html"><a href="01-preparation.html"><i class="fa fa-check"></i><b>1</b> 事前準備</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#概要"><i class="fa fa-check"></i><b>3.1</b> 概要</a></li>
-<li class="chapter" data-level="3.2" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#データの準備"><i class="fa fa-check"></i><b>3.2</b> データの準備</a></li>
-<li class="chapter" data-level="3.3" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#地図の描画"><i class="fa fa-check"></i><b>3.3</b> 地図の描画</a></li>
+<li class="chapter" data-level="1.1" data-path="01-preparation.html"><a href="01-preparation.html#rとrstudioのインストール"><i class="fa fa-check"></i><b>1.1</b> RとRstudioのインストール</a></li>
+<li class="chapter" data-level="1.2" data-path="01-preparation.html"><a href="01-preparation.html#使用するパッケージについて"><i class="fa fa-check"></i><b>1.2</b> 使用するパッケージについて</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="02-fundamental.html"><a href="02-fundamental.html"><i class="fa fa-check"></i><b>2</b> GISの基礎知識</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="02-fundamental.html"><a href="02-fundamental.html#gisデータのフォーマット"><i class="fa fa-check"></i><b>2.1</b> GISデータのフォーマット</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="02-fundamental.html"><a href="02-fundamental.html#simple-featuresとは"><i class="fa fa-check"></i><b>2.1.1</b> Simple Featuresとは</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="02-fundamental.html"><a href="02-fundamental.html#測地系"><i class="fa fa-check"></i><b>2.2</b> 測地系</a></li>
+<li class="chapter" data-level="2.3" data-path="02-fundamental.html"><a href="02-fundamental.html#地図投影変換"><i class="fa fa-check"></i><b>2.3</b> 地図投影変換</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="02-fundamental.html"><a href="02-fundamental.html#epsgコード"><i class="fa fa-check"></i><b>2.3.1</b> EPSGコード</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="10-choropleth.html"><a href="10-choropleth.html"><i class="fa fa-check"></i><b>3</b> コロプレス・マップ（塗り分け地図）</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="10-choropleth.html"><a href="10-choropleth.html#概要"><i class="fa fa-check"></i><b>3.1</b> 概要</a></li>
+<li class="chapter" data-level="3.2" data-path="10-choropleth.html"><a href="10-choropleth.html#データの準備"><i class="fa fa-check"></i><b>3.2</b> データの準備</a></li>
+<li class="chapter" data-level="3.3" data-path="10-choropleth.html"><a href="10-choropleth.html#地図の描画"><i class="fa fa-check"></i><b>3.3</b> 地図の描画</a></li>
+<li class="chapter" data-level="3.4" data-path="10-choropleth.html"><a href="10-choropleth.html#地図投影変換-1"><i class="fa fa-check"></i><b>3.4</b> 地図投影変換</a></li>
+<li class="chapter" data-level="3.5" data-path="10-choropleth.html"><a href="10-choropleth.html#統計データによる塗り分け"><i class="fa fa-check"></i><b>3.5</b> 統計データによる塗り分け</a></li>
 </ul></li>
 </ul>
 
@@ -159,17 +176,55 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="r" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> <em>R</em></h1>
+<div id="gisの基礎知識" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> GISの基礎知識</h1>
+<div id="gisデータのフォーマット" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> GISデータのフォーマット</h2>
+<p>現在流通しているGISデータのファイル形式のうち，代表的な以下の2つを紹介します。</p>
+<ul>
+<li>シェープファイル</li>
+<li>GeoJSON</li>
+</ul>
+<p>シェープファイルは現在デファクトスタンダードとなっているGISデータのファイル形式で，
+ESRI社（ArcGISなどのGIS製品で有名）によって開発・規格化されました。</p>
+<p>GeoJSONは，JSON（JavaScript Object Notation）を元に開発されたフォーマットです。
+GeoJSONのファイルはテキストファイルなので，テキストエディタで閲覧・編集することも可能です。</p>
+<div id="simple-featuresとは" class="section level3" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> Simple Featuresとは</h3>
+<p>Simple Features（正式にはSimple Feature Access）は，
+GISで使用される点・線・多角形などの幾何学図形からなるGISデータの，コンピュータ内部での保存およびアクセス方法に関する標準規格です。
+Open Geospatial Consortium (OGC)とInternational Organization for Standardization (ISO)によって規格化されています。</p>
+<p>このSimple Featuresを<code>R</code>で実現するためのパッケージが<code>sf</code>です。</p>
+</div>
+</div>
+<div id="測地系" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> 測地系</h2>
+<ul>
+<li><a href="https://www.gsi.go.jp/sokuchikijun/datum-main.html">日本の測地系</a></li>
+</ul>
+</div>
+<div id="地図投影変換" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> 地図投影変換</h2>
+<ul>
+<li><a href="https://www.gsi.go.jp/sokuchikijun/jpc.html">平面直角座標系</a></li>
+</ul>
+<div id="epsgコード" class="section level3" number="2.3.1">
+<h3><span class="header-section-number">2.3.1</span> EPSGコード</h3>
+<p>世界の様々な測地系や地図投影法に対して，ユニークなID 番号を振り分けたものです。
+International Association of Oil ＆ Gas Producers (IOGP）のGeomatics Committeeによって管理されています。
+<a href="https://epsg.org">epsg.org</a>，<a href="https://epsg.io">epsg.io</a>
+などのサイトでEPSGコードを検索することができます。</p>
 
+</div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="事前準備.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="コロプレスマップ塗り分け地図.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="01-preparation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="10-choropleth.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

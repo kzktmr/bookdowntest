@@ -3,8 +3,7 @@ title: "RでGIS"
 author: "Kazuki Tamura (@kzktmr)"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
-output:
-  bookdown::gitbook: default
+github-repo: kzktmr/giswithr
 ---
 
 # はじめに {-}
