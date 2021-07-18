@@ -157,6 +157,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.2" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#データの準備"><i class="fa fa-check"></i><b>3.2</b> データの準備</a></li>
 <li class="chapter" data-level="3.3" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#地図の描画"><i class="fa fa-check"></i><b>3.3</b> 地図の描画</a></li>
 <li class="chapter" data-level="3.4" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#地図投影変換-1"><i class="fa fa-check"></i><b>3.4</b> 地図投影変換</a></li>
+<li class="chapter" data-level="3.5" data-path="コロプレスマップ塗り分け地図.html"><a href="コロプレスマップ塗り分け地図.html#統計データによる塗り分け"><i class="fa fa-check"></i><b>3.5</b> 統計データによる塗り分け</a></li>
 </ul></li>
 </ul>
 
@@ -219,12 +220,100 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## Geodetic CRS:  WGS 84</code></pre>
 <p>読み込んだ<code>map</code>データをプロットします。</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="コロプレスマップ塗り分け地図.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">data =</span> map) </span></code></pre></div>
-<p><img src="_main_files/figure-html/plot_base_map-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/plot-base-map-1.png" width="672" /></p>
 <p>できました。簡単ですね。</p>
 </div>
 <div id="地図投影変換-1" class="section level2" number="3.4">
 <h2><span class="header-section-number">3.4</span> 地図投影変換</h2>
-<p>先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面に</p>
+<p>先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面にプロットしたものでした。
+これを「平面直角座標系」に変換して，表示してみましょう。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="コロプレスマップ塗り分け地図.html#cb11-1" aria-hidden="true" tabindex="-1"></a>map2 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(map, <span class="dv">6670</span>)</span>
+<span id="cb11-2"><a href="コロプレスマップ塗り分け地図.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">data =</span> map2) </span></code></pre></div>
+<p><img src="_main_files/figure-html/projection-map-1.png" width="672" /></p>
+<p>微妙な違いがわかりますか？</p>
+</div>
+<div id="統計データによる塗り分け" class="section level2" number="3.5">
+<h2><span class="header-section-number">3.5</span> 統計データによる塗り分け</h2>
+<p>まず，利用する統計データを読み込み，中身を確認してみましょう。
+Excelファイルを読み込むのに，<code>readxl</code>ライブラリの<code>read_excel</code>関数を使います。</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="コロプレスマップ塗り分け地図.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb12-2"><a href="コロプレスマップ塗り分け地図.html#cb12-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data/410004saga.xlsx&quot;</span>)</span>
+<span id="cb12-3"><a href="コロプレスマップ塗り分け地図.html#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 3 x 6
+##   KEY_CODE 人口総数 市区町村 `　男` `　女` 世帯総数
+##   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+## 1 412015     236372 佐賀市   111453 124919    93306
+## 2 412023     122785 唐津市    57547  65238    43872
+## 3 412031      72902 鳥栖市    34799  38103    27630</code></pre>
+<p>ここで，先ほど地図を描くのに使ったデータの中身もみてみましょう。</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="コロプレスマップ塗り分け地図.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(map2, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## Simple feature collection with 3 features and 4 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -117268.6 ymin: -1173.744 xmax: -54075.69 ymax: 69215.3
+## Projected CRS: JGD2011 / Japan Plane Rectangular CS II
+##   KEN_NAME GST_NAME CSS_NAME KEY_CODE                       geometry
+## 1   佐賀県   鹿島市     &lt;NA&gt;   412074 MULTIPOLYGON (((-82226.11 3...
+## 2   佐賀県   唐津市     &lt;NA&gt;   412023 MULTIPOLYGON (((-106350 451...
+## 3   佐賀県   神埼市     &lt;NA&gt;   412104 MULTIPOLYGON (((-60455.97 2...</code></pre>
+<p>両方のデータに<code>KEY_CODE</code>という同じデータがあるのがわかります。
+これをキーにして，2つのデータをくっつけます。</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="コロプレスマップ塗り分け地図.html#cb16-1" aria-hidden="true" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(map2, dat)</span></code></pre></div>
+<pre><code>## Joining, by = &quot;KEY_CODE&quot;</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="コロプレスマップ塗り分け地図.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat2)</span></code></pre></div>
+<pre><code>## Simple feature collection with 6 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -117268.6 ymin: -1173.744 xmax: -54075.69 ymax: 69215.3
+## Projected CRS: JGD2011 / Japan Plane Rectangular CS II
+##   KEN_NAME GST_NAME CSS_NAME KEY_CODE 人口総数 市区町村  　男  　女 世帯総数
+## 1   佐賀県   鹿島市     &lt;NA&gt;   412074    29684   鹿島市 13920 15764    10124
+## 2   佐賀県   唐津市     &lt;NA&gt;   412023   122785   唐津市 57547 65238    43872
+## 3   佐賀県   神埼市     &lt;NA&gt;   412104    31842   神埼市 15172 16670    10913
+## 4   佐賀県   杵島郡   江北町   414247     9583   江北町  4497  5086     3225
+## 5   佐賀県   多久市     &lt;NA&gt;   412040    19749   多久市  9146 10603     6847
+## 6   佐賀県 東松浦郡   玄海町   413879     5902   玄海町  3035  2867     1918
+##                         geometry
+## 1 MULTIPOLYGON (((-82226.11 3...
+## 2 MULTIPOLYGON (((-106350 451...
+## 3 MULTIPOLYGON (((-60455.97 2...
+## 4 MULTIPOLYGON (((-78005.98 2...
+## 5 MULTIPOLYGON (((-76464.8 27...
+## 6 MULTIPOLYGON (((-106304.2 5...</code></pre>
+<p>このように，対応する2つのデータを結合するときには，<code>dplyr</code>ライブラリの<code>left_join</code>関数が便利です。この関数が2つのデータに共通の列名を自動的に見つけて，そのデータに基づいて2つのデータを結合してくれます。これで，地図データに人口や世帯数のデータを結びつけることができました。</p>
+<p>この章の目的は，人口密度のコロプレスマップを作ることですので，市町村の面積データが必要です。先ほどと同様に，別のところから面積データを持ってきでjoinしてもいいのですが，ここでは地図データから面積を計算してみましょう。<code>sf</code>ライブラリの<code>st_area</code>関数を使います。</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="コロプレスマップ塗り分け地図.html#cb20-1" aria-hidden="true" tabindex="-1"></a>dat2<span class="sc">$</span>area <span class="ot">&lt;-</span> <span class="fu">st_area</span>(dat2)</span>
+<span id="cb20-2"><a href="コロプレスマップ塗り分け地図.html#cb20-2" aria-hidden="true" tabindex="-1"></a>dat2<span class="sc">$</span>area <span class="ot">&lt;-</span> units<span class="sc">::</span><span class="fu">set_units</span>(dat2<span class="sc">$</span>area, km<span class="sc">^</span><span class="dv">2</span>) </span>
+<span id="cb20-3"><a href="コロプレスマップ塗り分け地図.html#cb20-3" aria-hidden="true" tabindex="-1"></a>dat2<span class="sc">$</span>area <span class="ot">&lt;-</span> units<span class="sc">::</span><span class="fu">drop_units</span>(dat2<span class="sc">$</span>area)</span>
+<span id="cb20-4"><a href="コロプレスマップ塗り分け地図.html#cb20-4" aria-hidden="true" tabindex="-1"></a>dat2<span class="sc">$</span>density <span class="ot">&lt;-</span> dat2<span class="sc">$</span>人口総数 <span class="sc">/</span> dat2<span class="sc">$</span>area</span>
+<span id="cb20-5"><a href="コロプレスマップ塗り分け地図.html#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat2)</span></code></pre></div>
+<pre><code>## Simple feature collection with 6 features and 11 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -117268.6 ymin: -1173.744 xmax: -54075.69 ymax: 69215.3
+## Projected CRS: JGD2011 / Japan Plane Rectangular CS II
+##   KEN_NAME GST_NAME CSS_NAME KEY_CODE 人口総数 市区町村  　男  　女 世帯総数
+## 1   佐賀県   鹿島市     &lt;NA&gt;   412074    29684   鹿島市 13920 15764    10124
+## 2   佐賀県   唐津市     &lt;NA&gt;   412023   122785   唐津市 57547 65238    43872
+## 3   佐賀県   神埼市     &lt;NA&gt;   412104    31842   神埼市 15172 16670    10913
+## 4   佐賀県   杵島郡   江北町   414247     9583   江北町  4497  5086     3225
+## 5   佐賀県   多久市     &lt;NA&gt;   412040    19749   多久市  9146 10603     6847
+## 6   佐賀県 東松浦郡   玄海町   413879     5902   玄海町  3035  2867     1918
+##                         geometry      area  density
+## 1 MULTIPOLYGON (((-82226.11 3... 111.11309 267.1512
+## 2 MULTIPOLYGON (((-106350 451... 487.16068 252.0421
+## 3 MULTIPOLYGON (((-60455.97 2... 124.00616 256.7776
+## 4 MULTIPOLYGON (((-78005.98 2...  24.83140 385.9226
+## 5 MULTIPOLYGON (((-76464.8 27...  96.67014 204.2927
+## 6 MULTIPOLYGON (((-106304.2 5...  35.90699 164.3691</code></pre>
+<p>平面直角座標系の距離がm単位になっていますので，<code>st_area</code>で計算した面積はm<sup>2</sup>単位になっています。
+そこで，units<code>ライブラリの</code>set_units関数で，km<sup>2</sup>単位に変換しています。
+さらに，人口密度を計算するときに単位が邪魔なので，<code>drop_units</code>関数で単位を落としています。</p>
+<p>さて，塗り分け地図を描くには，<code>geom_sf</code>の中で，densityでfillしろと指示するだけです。
+2行目は塗り潰しのカラーパレットを指定しています。</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="コロプレスマップ塗り分け地図.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">fill =</span> density), <span class="at">data =</span> dat2) <span class="sc">+</span></span>
+<span id="cb22-2"><a href="コロプレスマップ塗り分け地図.html#cb22-2" aria-hidden="true" tabindex="-1"></a>  colorspace<span class="sc">::</span><span class="fu">scale_fill_continuous_sequential</span>(<span class="st">&quot;YlGn&quot;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/choropleth-map-1.png" width="672" /></p>
 
 </div>
 </div>

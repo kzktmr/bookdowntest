@@ -32,7 +32,7 @@ map <- st_read("data/410004saga.geojson")
 
 読み込んだ`map`データをプロットします。
 
-```{r plot_base_map, cache=TRUE}
+```{r plot-base-map, cache=TRUE}
 ggplot() + geom_sf(data = map) 
 ```
 
@@ -40,4 +40,61 @@ ggplot() + geom_sf(data = map)
 
 ## 地図投影変換
 
-先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面に
+先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面にプロットしたものでした。
+これを「平面直角座標系」に変換して，表示してみましょう。
+
+```{r projection-map, cache=TRUE}
+map2 <- st_transform(map, 6670)
+ggplot() + geom_sf(data = map2) 
+```
+
+微妙な違いがわかりますか？
+
+## 統計データによる塗り分け
+
+まず，利用する統計データを読み込み，中身を確認してみましょう。
+Excelファイルを読み込むのに，`readxl`ライブラリの`read_excel`関数を使います。
+
+```{r read-data}
+library(readxl)
+dat <- read_excel("data/410004saga.xlsx")
+head(dat, 3)
+```
+
+ここで，先ほど地図を描くのに使ったデータの中身もみてみましょう。
+
+```{r map-data}
+head(map2, 3)
+```
+
+両方のデータに`KEY_CODE`という同じデータがあるのがわかります。
+これをキーにして，2つのデータをくっつけます。
+
+```{r left-join}
+dat2 <- left_join(map2, dat)
+head(dat2)
+```
+
+このように，対応する2つのデータを結合するときには，`dplyr`ライブラリの`left_join`関数が便利です。この関数が2つのデータに共通の列名を自動的に見つけて，そのデータに基づいて2つのデータを結合してくれます。これで，地図データに人口や世帯数のデータを結びつけることができました。
+
+この章の目的は，人口密度のコロプレスマップを作ることですので，市町村の面積データが必要です。先ほどと同様に，別のところから面積データを持ってきでjoinしてもいいのですが，ここでは地図データから面積を計算してみましょう。`sf`ライブラリの`st_area`関数を使います。
+
+```{r area}
+dat2$area <- st_area(dat2)
+dat2$area <- units::set_units(dat2$area, km^2) 
+dat2$area <- units::drop_units(dat2$area)
+dat2$density <- dat2$人口総数 / dat2$area
+head(dat2)
+```
+
+平面直角座標系の距離がm単位になっていますので，`st_area`で計算した面積はm^2^単位になっています。
+そこで，units`ライブラリの`set_units関数で，km^2^単位に変換しています。
+さらに，人口密度を計算するときに単位が邪魔なので，`drop_units`関数で単位を落としています。
+
+さて，塗り分け地図を描くには，`geom_sf`の中で，densityでfillしろと指示するだけです。
+2行目は塗り潰しのカラーパレットを指定しています。
+
+```{r choropleth-map}
+ggplot() + geom_sf(mapping = aes(fill = density), data = dat2) +
+  colorspace::scale_fill_continuous_sequential("YlGn")
+```
