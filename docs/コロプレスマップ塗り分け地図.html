@@ -24,7 +24,7 @@
 <meta name="author" content="Kazuki Tamura (@kzktmr)" />
 
 
-<meta name="date" content="2021-07-18" />
+<meta name="date" content="2021-07-19" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -211,7 +211,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <code>sf</code>ライブラリの<code>st_read</code>関数を使って読み込みます。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="コロプレスマップ塗り分け地図.html#cb8-1" aria-hidden="true" tabindex="-1"></a>map <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/410004saga.geojson&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `410004saga&#39; from data source 
-##   `/Users/kazukitamura/github/bookdowntest/data/410004saga.geojson&#39; 
+##   `/Users/kazukitamura/github/giswithr/data/410004saga.geojson&#39; 
 ##   using driver `GeoJSON&#39;
 ## Simple feature collection with 20 features and 4 fields
 ## Geometry type: MULTIPOLYGON
@@ -257,7 +257,7 @@ Excelファイルを読み込むのに，<code>readxl</code>ライブラリの<c
 ## 2   佐賀県   唐津市     &lt;NA&gt;   412023 MULTIPOLYGON (((-106350 451...
 ## 3   佐賀県   神埼市     &lt;NA&gt;   412104 MULTIPOLYGON (((-60455.97 2...</code></pre>
 <p>両方のデータに<code>KEY_CODE</code>という同じデータがあるのがわかります。
-これをキーにして，2つのデータをくっつけます。</p>
+これをキーにして，2つのデータを結合します。</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="コロプレスマップ塗り分け地図.html#cb16-1" aria-hidden="true" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(map2, dat)</span></code></pre></div>
 <pre><code>## Joining, by = &quot;KEY_CODE&quot;</code></pre>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="コロプレスマップ塗り分け地図.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat2)</span></code></pre></div>

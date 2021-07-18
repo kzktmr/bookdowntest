@@ -26,13 +26,13 @@ library(sf)
 次に，先ほど`data`フォルダに保存した`410004saga.geojson`を，
 `sf`ライブラリの`st_read`関数を使って読み込みます。
 
-```{r read_map_data, cache=TRUE}
+```{r read_map_data}
 map <- st_read("data/410004saga.geojson")
 ```
 
 読み込んだ`map`データをプロットします。
 
-```{r plot-base-map, cache=TRUE}
+```{r plot-base-map}
 ggplot() + geom_sf(data = map) 
 ```
 
@@ -43,7 +43,7 @@ ggplot() + geom_sf(data = map)
 先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面にプロットしたものでした。
 これを「平面直角座標系」に変換して，表示してみましょう。
 
-```{r projection-map, cache=TRUE}
+```{r projection-map}
 map2 <- st_transform(map, 6670)
 ggplot() + geom_sf(data = map2) 
 ```
