@@ -220,7 +220,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## Geodetic CRS:  WGS 84</code></pre>
 <p>読み込んだ<code>map</code>データをプロットします。</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="10-choropleth.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">data =</span> map) </span></code></pre></div>
-<p><img src="_main_files/figure-html/plot-base-map-1.png" width="672" /></p>
+<p><img src="gis-with-r_files/figure-html/plot-base-map-1.png" width="672" /></p>
 <p>できました。簡単ですね。</p>
 </div>
 <div id="地図投影変換-1" class="section level2" number="3.4">
@@ -229,7 +229,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 これを「平面直角座標系」に変換して，表示してみましょう。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="10-choropleth.html#cb11-1" aria-hidden="true" tabindex="-1"></a>map2 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(map, <span class="dv">6670</span>)</span>
 <span id="cb11-2"><a href="10-choropleth.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">data =</span> map2) </span></code></pre></div>
-<p><img src="_main_files/figure-html/projection-map-1.png" width="672" /></p>
+<p><img src="gis-with-r_files/figure-html/projection-map-1.png" width="672" /></p>
 <p>微妙な違いがわかりますか？</p>
 </div>
 <div id="統計データによる塗り分け" class="section level2" number="3.5">
@@ -313,7 +313,7 @@ Excelファイルを読み込むのに，<code>readxl</code>ライブラリの<c
 2行目は塗り潰しのカラーパレットを指定しています。</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="10-choropleth.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">fill =</span> density), <span class="at">data =</span> dat2) <span class="sc">+</span></span>
 <span id="cb22-2"><a href="10-choropleth.html#cb22-2" aria-hidden="true" tabindex="-1"></a>  colorspace<span class="sc">::</span><span class="fu">scale_fill_continuous_sequential</span>(<span class="st">&quot;YlGn&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/choropleth-map-1.png" width="672" /></p>
+<p><img src="gis-with-r_files/figure-html/choropleth-map-1.png" width="672" /></p>
 
 </div>
 </div>
