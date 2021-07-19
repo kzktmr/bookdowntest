@@ -5,4 +5,5 @@ rmd_files:
   - 01-preparation.Rmd
   - 02-fundamental.Rmd
   - 10-choropleth.Rmd
+  - 20-distance.Rmd
   

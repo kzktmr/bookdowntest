@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="02-fundamental.html"/>
-
+<link rel="next" href="20-distance.html"/>
 <script src="libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -158,6 +158,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.3" data-path="10-choropleth.html"><a href="10-choropleth.html#地図の描画"><i class="fa fa-check"></i><b>3.3</b> 地図の描画</a></li>
 <li class="chapter" data-level="3.4" data-path="10-choropleth.html"><a href="10-choropleth.html#地図投影変換-1"><i class="fa fa-check"></i><b>3.4</b> 地図投影変換</a></li>
 <li class="chapter" data-level="3.5" data-path="10-choropleth.html"><a href="10-choropleth.html#統計データによる塗り分け"><i class="fa fa-check"></i><b>3.5</b> 統計データによる塗り分け</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="20-distance.html"><a href="20-distance.html"><i class="fa fa-check"></i><b>4</b> 地点間の距離</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="20-distance.html"><a href="20-distance.html#概要-1"><i class="fa fa-check"></i><b>4.1</b> 概要</a></li>
+<li class="chapter" data-level="4.2" data-path="20-distance.html"><a href="20-distance.html#データの準備-1"><i class="fa fa-check"></i><b>4.2</b> データの準備</a></li>
+<li class="chapter" data-level="4.3" data-path="20-distance.html"><a href="20-distance.html#距離の計算"><i class="fa fa-check"></i><b>4.3</b> 距離の計算</a></li>
+<li class="chapter" data-level="4.4" data-path="20-distance.html"><a href="20-distance.html#結果の図示"><i class="fa fa-check"></i><b>4.4</b> 結果の図示</a></li>
 </ul></li>
 </ul>
 
@@ -310,7 +317,7 @@ Excelファイルを読み込むのに，<code>readxl</code>ライブラリの<c
 そこで，units<code>ライブラリの</code>set_units関数で，km<sup>2</sup>単位に変換しています。
 さらに，人口密度を計算するときに単位が邪魔なので，<code>drop_units</code>関数で単位を落としています。</p>
 <p>さて，塗り分け地図を描くには，<code>geom_sf</code>の中で，densityでfillしろと指示するだけです。
-2行目は塗り潰しのカラーパレットを指定しています。</p>
+2行目は塗り潰しの色（カラーパレット）を指定しています。</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="10-choropleth.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">fill =</span> density), <span class="at">data =</span> dat2) <span class="sc">+</span></span>
 <span id="cb22-2"><a href="10-choropleth.html#cb22-2" aria-hidden="true" tabindex="-1"></a>  colorspace<span class="sc">::</span><span class="fu">scale_fill_continuous_sequential</span>(<span class="st">&quot;YlGn&quot;</span>)</span></code></pre></div>
 <p><img src="gis-with-r_files/figure-html/choropleth-map-1.png" width="672" /></p>
@@ -322,8 +329,8 @@ Excelファイルを読み込むのに，<code>readxl</code>ライブラリの<c
           </div>
         </div>
       </div>
-<a href="02-fundamental.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="02-fundamental.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="20-distance.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

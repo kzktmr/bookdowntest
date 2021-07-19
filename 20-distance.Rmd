@@ -1,0 +1,101 @@
+# 地点間の距離
+
+## 概要
+
+この章では，GISデータを用いて地点間の距離（直線距離・大圏距離）を測る方法を説明します。
+佐賀県庁から，佐賀県の各市役所・町役場までの距離を求めてみましょう。
+
+## データの準備
+
+市町の座標データは，国土交通省の「[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/)」で提供されているシェープファイルを使います。
+「3.地域」「施設」にある「[市区町村役場](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P34.html)」から，佐賀県のデータをダウンロードしてください。
+ダウンロードしたzipファイルを解凍し，できた`P34-14_41_GML`フォルダごと`data`フォルダに入れてください。
+このように，`GeoJSON`と異なり，シェープファイルは複数のファイルから構成されていることがわかります。
+
+さて，このデータを読み込むのも，`st_read`関数です。
+関数の引数にフォルダを指定すれば，シェープファイルを読み込んでくれます
+（Windowsで作業する場合は，`options`引数は必要ないかもしれません）。
+
+```{r read-shapefile}
+city <- st_read("data/P34-14_41_GML/", options = "ENCODING=cp932")
+head(city, 3)
+```
+
+読み込んだデータの中身を見ると，`P34_001`から`P34_004`までのデータ列と，位置情報である`geometry`列があることがわかります。
+P34から始まるデータ列の意味を知りたい場合は，先ほどの[ウェブページ](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P34.html)の「属性情報」欄をご覧ください。
+順番に「行政区域コード」「施設分類」「名称」「所在地」のデータであることがわかります。
+
+「[施設分類](https://nlftp.mlit.go.jp/ksj/gml/codelist/PubOfficeClassCd.html)」は，1が「本庁（市役所、区役所、町役場、村役場）」，2が「支所、出張所、連絡所」を意味しますが，今回の作業に必要なのは本庁のデータだけなので，そのデータだけ抜き出します。
+これは，`dplyr`ライブラリの`filter`関数を使うことで実現できます。
+
+```{r filter-OfficeClass}
+city <- filter(city, P34_002 == 1)
+head(city, 3)
+```
+
+次に，佐賀県庁の位置データを準備します。
+市町のデータと同じように，国土数値情報などのデータを利用してもよいですが，
+ここでは，データを手作りしてみましょう。
+
+ウェブブラウザで[地理院地図](https://maps.gsi.go.jp)を開き，ページ上部の検索ボックスから「佐賀県庁舎」を検索してください。
+検索結果欄から「佐賀県庁舎」をクリックすると，佐賀県庁舎を中心とした地図が表示されますので，さらに画面中央の旗アイコンをクリックすると，佐賀県庁舎の緯度軽度が表示されます。
+
+```{r gsi-map,echo=FALSE}
+knitr::include_graphics("images/gsi-map.png")
+```
+
+この緯度軽度の数字から，以下のように`st_sf`などの関数を使って，`sf`オブジェクトを作成します。
+さらに，日本測地系（JGD2000，EPSGコード：4612）を指定します
+^[細かいことを言えば，[地理院地図の測地系はJGD2011](https://maps.gsi.go.jp/help/howtouse.html)なのですが，西日本地域では両者に差がないので，国土数値情報のデータに合わせて，JDG2000にしておきます。]。   
+
+```{r pref-data}
+geometry <- st_sfc(st_point(c(130.2991337, 33.24936696)))
+pref <- st_sf(name = "佐賀県庁舎", geometry)
+st_crs(pref) <- 4612
+pref
+```
+
+## 距離の計算
+
+このように，佐賀県内市町と佐賀県庁の座標データが準備できましたので，距離を計算するわけですが，これは`sf`ライブラリの`st_distance`関数で求めることができます。
+
+```{r distance}
+st_distance(city, pref)
+```
+
+この結果を，単位をkmに直したのち，`city`データの`distance`列として距離データを追加します。
+
+```{r add-distance-to-city}
+dist <- st_distance(city, pref)
+dist <- units::set_units(dist, km)
+city$distance <- as.numeric(dist)
+head(city, 3)
+```
+
+## 結果の図示
+
+佐賀県内市町の，佐賀県庁からの距離と人口密度の関係を散布図にしてみましょう。
+まず，人口密度と距離が別々のデータに入っているので，それらを結合します。
+結合に使う市町村コードが少し違う（佐賀県オープンデータの市町村コードには6桁目にチェックディジットが入っている）ので，小細工しています。
+
+```{r bind-data}
+dat3 <- st_drop_geometry(dat2)
+dat3$KEY_CODE2 <- str_sub(dat3$KEY_CODE, 1, 5)
+dat3 <- left_join(dat3, city, by = c("KEY_CODE2" = "P34_001"))
+head(dat3, 3)
+```
+
+データができたので，散布図を作成します（Windowsの場合は，`family`引数は必要ないかもしれません）。
+
+```{r dist-dens-plot,cache=TRUE}
+library(ggrepel)
+ggplot(dat3, aes(x = distance, y = density)) + geom_point() +
+  geom_text_repel(aes(label = 市区町村), family = "HiraginoSans-W3") 
+```
+
+ついでに，市町（`city`）と県庁（`pref`）の位置を，地図に落としてみましょう。
+
+```{r city-map,cache=TRUE}
+ggplot() + geom_sf(data = map2) + 
+  geom_sf(data = city, color = "blue") + geom_sf(data = pref, color = "red")
+```

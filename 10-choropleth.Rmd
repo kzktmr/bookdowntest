@@ -32,7 +32,7 @@ map <- st_read("data/410004saga.geojson")
 
 読み込んだ`map`データをプロットします。
 
-```{r plot-base-map}
+```{r plot-base-map,cache=TRUE}
 ggplot() + geom_sf(data = map) 
 ```
 
@@ -43,7 +43,7 @@ ggplot() + geom_sf(data = map)
 先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面にプロットしたものでした。
 これを「平面直角座標系」に変換して，表示してみましょう。
 
-```{r projection-map}
+```{r projection-map,cache=TRUE}
 map2 <- st_transform(map, 6670)
 ggplot() + geom_sf(data = map2) 
 ```
@@ -92,9 +92,9 @@ head(dat2)
 さらに，人口密度を計算するときに単位が邪魔なので，`drop_units`関数で単位を落としています。
 
 さて，塗り分け地図を描くには，`geom_sf`の中で，densityでfillしろと指示するだけです。
-2行目は塗り潰しのカラーパレットを指定しています。
+2行目は塗り潰しの色（カラーパレット）を指定しています。
 
-```{r choropleth-map}
+```{r choropleth-map,cache=TRUE}
 ggplot() + geom_sf(mapping = aes(fill = density), data = dat2) +
   colorspace::scale_fill_continuous_sequential("YlGn")
 ```
