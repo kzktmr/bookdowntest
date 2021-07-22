@@ -63,4 +63,95 @@ head(starbucks_ge, 3)
 
 ## Yahoo!ジオコーダAPI
 
+Yahoo Japanが提供しているAPIを使ってジオコーディングを行います。
+Yahoo! JAPAN IDを持っていない人は[取得](https://account.edit.yahoo.co.jp/signup)してください。
+
+Yahoo Japanにログインし，[こちら](https://e.developer.yahoo.co.jp/register)からアプリケーションを登録し、アプリケーションIDを発行してください（アプリケーションの種類は「クライアントサイド」にしてください）。
+
+アプリケーションIDの管理には，`keyring`パッケージが便利です。
+Windowsなら資格情報マネージャー，macosならKeychainを利用してIDやパスワードを管理することができます。
+`key_set`関数を実行すると，パスワード入力欄が表示されますので，先ほど取得したアプリケーションIDを入力します。
+
+```{r keyring}
+library(keyring)
+# key_set("yahoo_api")
+```
+
+まず，`starbucks_saga.csv`を読み込みましょう。
+
+```{r read_starbucks}
+starbucks <- read_csv("data/starbucks_saga.csv")
+```
+
+`R`からwebAPIを操作するには，`httr`パッケージが便利です。
+`geocoidng`という関数を定義しました。
+
+```{r new_function}
+library(httr)
+geocoding <- function(address){
+  tmp <- GET(url = "https://map.yahooapis.jp/geocode/V1/geoCoder?",
+             query = list(
+               appid = keyring::key_get("yahoo_api"),
+               query = address,
+               output = "json"
+               )
+             ) # APIの結果を受け取る
+  tmp <- content(tmp)
+  tmp <- tmp$Feature[[1]]$Geometry$Coordinates # 緯度軽度の部分を抜き出す
+  tmp <- str_split_fixed(tmp, ",", 2)          
+  tmp <- as_tibble(tmp)
+  tmp <- type_convert(tmp)
+  tmp <- set_names(tmp, c("lon", "lat"))
+  return(tmp)
+}
+```
+
+定義した関数を使って，ジオコーディングを行い，緯度軽度のデータを追加します。
+
+```{r geocoding,cache=TRUE,message=FALSE}
+lonlat <- map_df(starbucks$address, geocoding)
+starbucks_ya <- bind_cols(starbucks, lonlat)
+```
+
+さらに，これをSimple Featureに変換します。
+
+```{r yahoo_sfc}
+starbucks_ya <- st_as_sf(starbucks_ya, coords = c("lon", "lat"), crs = 6668)
+head(starbucks_ya, 3)
+```
+
+## CSVアドレスマッチングサービス
+
+これは，東京大学空間情報科学研究センターが提供するwebサービスで，
+住所を含むcsvファイルに，緯度経度を追加して返してくれます
+（詳しくは[こちら](https://geocode.csis.u-tokyo.ac.jp/home/csv-admatch/)）。
+
+[こちら](https://geocode.csis.u-tokyo.ac.jp/geocode-cgi/geocode.cgi?action=start)のページにアクセスし，必要な情報を入力します。
+
+```{r csv-geocoding,echo=FALSE}
+knitr::include_graphics("images/csv-geocoding.png")
+```
+
+帰ってきたファイルを，`starbucks_geocoding.csv`と名前を変えて，`data`フォルダに置きましょう。
+
+このファイルを`R`で読み込み，あとは先ほどと同様にSimple Feature変換すれば作業終了です。
+
+```{r ut-sfc}
+starbucks_ut <- read_csv("data/starbucks_geocoding.csv")
+starbucks_ut <- st_as_sf(starbucks_ut, coords = c("fX", "fY"), crs = 6668)
+head(starbucks_ut, 3)
+```
+
+## 結果の図示
+
+3通りの方法でジオコーディングした結果を全て地図に落としてみましょう。
+概ね同じ位置にプロットされますが，店舗によっては利用するサービスによってジオコーディングされた座標がかなり異なるようです。
+これまでの経験上，CSVアドレスマッチングサービスの精度は，他の2つと比較するとやや劣るように感じます。
+
+```{r starbucks-map,cache=TRUE}
+ggplot() + geom_sf(data = map2, fill = "white") + 
+  geom_sf(data = starbucks_ge, color = "green") +
+  geom_sf(data = starbucks_ya, color = "red") +
+  geom_sf(data = starbucks_ut, color = "blue")
+```
 

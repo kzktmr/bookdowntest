@@ -11,3 +11,5 @@ forcats
 sf
 readxl
 ggrepel
+keyring
+httr

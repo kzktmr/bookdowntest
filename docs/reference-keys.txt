@@ -23,3 +23,5 @@ epsgコード
 データ
 google-earth-pro
 yahooジオコーダapi
+csvアドレスマッチングサービス
+結果の図示-1

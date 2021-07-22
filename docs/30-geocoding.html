@@ -172,6 +172,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="5.2" data-path="30-geocoding.html"><a href="30-geocoding.html#データ"><i class="fa fa-check"></i><b>5.2</b> データ</a></li>
 <li class="chapter" data-level="5.3" data-path="30-geocoding.html"><a href="30-geocoding.html#google-earth-pro"><i class="fa fa-check"></i><b>5.3</b> Google Earth Pro</a></li>
 <li class="chapter" data-level="5.4" data-path="30-geocoding.html"><a href="30-geocoding.html#yahooジオコーダapi"><i class="fa fa-check"></i><b>5.4</b> Yahoo!ジオコーダAPI</a></li>
+<li class="chapter" data-level="5.5" data-path="30-geocoding.html"><a href="30-geocoding.html#csvアドレスマッチングサービス"><i class="fa fa-check"></i><b>5.5</b> CSVアドレスマッチングサービス</a></li>
+<li class="chapter" data-level="5.6" data-path="30-geocoding.html"><a href="30-geocoding.html#結果の図示-1"><i class="fa fa-check"></i><b>5.6</b> 結果の図示</a></li>
 </ul></li>
 </ul>
 
@@ -309,6 +311,106 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="yahooジオコーダapi" class="section level2" number="5.4">
 <h2><span class="header-section-number">5.4</span> Yahoo!ジオコーダAPI</h2>
+<p>Yahoo Japanが提供しているAPIを使ってジオコーディングを行います。
+Yahoo! JAPAN IDを持っていない人は<a href="https://account.edit.yahoo.co.jp/signup">取得</a>してください。</p>
+<p>Yahoo Japanにログインし，<a href="https://e.developer.yahoo.co.jp/register">こちら</a>からアプリケーションを登録し、アプリケーションIDを発行してください（アプリケーションの種類は「クライアントサイド」にしてください）。</p>
+<p>アプリケーションIDの管理には，<code>keyring</code>パッケージが便利です。
+Windowsなら資格情報マネージャー，macosならKeychainを利用してIDやパスワードを管理することができます。
+<code>key_set</code>関数を実行すると，パスワード入力欄が表示されますので，先ほど取得したアプリケーションIDを入力します。</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="30-geocoding.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(keyring)</span>
+<span id="cb45-2"><a href="30-geocoding.html#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co"># key_set(&quot;yahoo_api&quot;)</span></span></code></pre></div>
+<p>まず，<code>starbucks_saga.csv</code>を読み込みましょう。</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="30-geocoding.html#cb46-1" aria-hidden="true" tabindex="-1"></a>starbucks <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/starbucks_saga.csv&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## ─ Column specification ────────────────────────────
+## cols(
+##   shop = col_character(),
+##   address = col_character()
+## )</code></pre>
+<p><code>R</code>からwebAPIを操作するには，<code>httr</code>パッケージが便利です。
+<code>geocoidng</code>という関数を定義しました。</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="30-geocoding.html#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(httr)</span>
+<span id="cb48-2"><a href="30-geocoding.html#cb48-2" aria-hidden="true" tabindex="-1"></a>geocoding <span class="ot">&lt;-</span> <span class="cf">function</span>(address){</span>
+<span id="cb48-3"><a href="30-geocoding.html#cb48-3" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">GET</span>(<span class="at">url =</span> <span class="st">&quot;https://map.yahooapis.jp/geocode/V1/geoCoder?&quot;</span>,</span>
+<span id="cb48-4"><a href="30-geocoding.html#cb48-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb48-5"><a href="30-geocoding.html#cb48-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">appid =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&quot;yahoo_api&quot;</span>),</span>
+<span id="cb48-6"><a href="30-geocoding.html#cb48-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">query =</span> address,</span>
+<span id="cb48-7"><a href="30-geocoding.html#cb48-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">output =</span> <span class="st">&quot;json&quot;</span></span>
+<span id="cb48-8"><a href="30-geocoding.html#cb48-8" aria-hidden="true" tabindex="-1"></a>               )</span>
+<span id="cb48-9"><a href="30-geocoding.html#cb48-9" aria-hidden="true" tabindex="-1"></a>             ) <span class="co"># APIの結果を受け取る</span></span>
+<span id="cb48-10"><a href="30-geocoding.html#cb48-10" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">content</span>(tmp)</span>
+<span id="cb48-11"><a href="30-geocoding.html#cb48-11" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> tmp<span class="sc">$</span>Feature[[<span class="dv">1</span>]]<span class="sc">$</span>Geometry<span class="sc">$</span>Coordinates <span class="co"># 緯度軽度の部分を抜き出す</span></span>
+<span id="cb48-12"><a href="30-geocoding.html#cb48-12" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">str_split_fixed</span>(tmp, <span class="st">&quot;,&quot;</span>, <span class="dv">2</span>)          </span>
+<span id="cb48-13"><a href="30-geocoding.html#cb48-13" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(tmp)</span>
+<span id="cb48-14"><a href="30-geocoding.html#cb48-14" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">type_convert</span>(tmp)</span>
+<span id="cb48-15"><a href="30-geocoding.html#cb48-15" aria-hidden="true" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">set_names</span>(tmp, <span class="fu">c</span>(<span class="st">&quot;lon&quot;</span>, <span class="st">&quot;lat&quot;</span>))</span>
+<span id="cb48-16"><a href="30-geocoding.html#cb48-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(tmp)</span>
+<span id="cb48-17"><a href="30-geocoding.html#cb48-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>定義した関数を使って，ジオコーディングを行い，緯度軽度のデータを追加します。</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="30-geocoding.html#cb49-1" aria-hidden="true" tabindex="-1"></a>lonlat <span class="ot">&lt;-</span> <span class="fu">map_df</span>(starbucks<span class="sc">$</span>address, geocoding)</span></code></pre></div>
+<pre><code>## Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0.
+## Using compatibility `.name_repair`.</code></pre>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="30-geocoding.html#cb51-1" aria-hidden="true" tabindex="-1"></a>starbucks_ya <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(starbucks, lonlat)</span></code></pre></div>
+<p>さらに，これをSimple Featureに変換します。</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="30-geocoding.html#cb52-1" aria-hidden="true" tabindex="-1"></a>starbucks_ya <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(starbucks_ya, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;lon&quot;</span>, <span class="st">&quot;lat&quot;</span>), <span class="at">crs =</span> <span class="dv">6668</span>)</span>
+<span id="cb52-2"><a href="30-geocoding.html#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(starbucks_ya, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## Simple feature collection with 3 features and 2 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: 130.2921 ymin: 33.23876 xmax: 130.5116 ymax: 33.40649
+## Geodetic CRS:  JGD2011
+## # A tibble: 3 x 3
+##   shop                           address                              geometry
+##   &lt;chr&gt;                          &lt;chr&gt;                             &lt;POINT [°]&gt;
+## 1 佐賀南バイパス店               佐賀県佐賀市本庄町袋306-6 (130.2989 33.23876)
+## 2 佐賀大学通り店                 佐賀県佐賀市与賀町70-1     (130.2921 33.2483)
+## 3 鳥栖プレミアム・アウトレット店 佐賀県鳥栖市弥生が丘8-1   (130.5116 33.40649)</code></pre>
+</div>
+<div id="csvアドレスマッチングサービス" class="section level2" number="5.5">
+<h2><span class="header-section-number">5.5</span> CSVアドレスマッチングサービス</h2>
+<p>これは，東京大学空間情報科学研究センターが提供するwebサービスで，
+住所を含むcsvファイルに，緯度経度を追加して返してくれます
+（詳しくは<a href="https://geocode.csis.u-tokyo.ac.jp/home/csv-admatch/">こちら</a>）。</p>
+<p><a href="https://geocode.csis.u-tokyo.ac.jp/geocode-cgi/geocode.cgi?action=start">こちら</a>のページにアクセスし，必要な情報を入力します。</p>
+<p><img src="images/csv-geocoding.png" width="928" /></p>
+<p>帰ってきたファイルを，<code>starbucks_geocoding.csv</code>と名前を変えて，<code>data</code>フォルダに置きましょう。</p>
+<p>このファイルを<code>R</code>で読み込み，あとは先ほどと同様にSimple Feature変換すれば作業終了です。</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="30-geocoding.html#cb54-1" aria-hidden="true" tabindex="-1"></a>starbucks_ut <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/starbucks_geocoding.csv&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## ─ Column specification ────────────────────────────
+## cols(
+##   shop = col_character(),
+##   address = col_character(),
+##   LocName = col_character(),
+##   fX = col_double(),
+##   fY = col_double(),
+##   iConf = col_double(),
+##   iLvl = col_double()
+## )</code></pre>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="30-geocoding.html#cb56-1" aria-hidden="true" tabindex="-1"></a>starbucks_ut <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(starbucks_ut, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;fX&quot;</span>, <span class="st">&quot;fY&quot;</span>), <span class="at">crs =</span> <span class="dv">6668</span>)</span>
+<span id="cb56-2"><a href="30-geocoding.html#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(starbucks_ut, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## Simple feature collection with 3 features and 5 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: 130.2882 ymin: 33.2249 xmax: 130.5118 ymax: 33.40625
+## Geodetic CRS:  JGD2011
+## # A tibble: 3 x 6
+##   shop          address      LocName         iConf  iLvl                geometry
+##   &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt;             &lt;POINT [°]&gt;
+## 1 佐賀南バイパ… 佐賀県佐賀…  佐賀県/佐賀市/…     5     5      (130.2882 33.2249)
+## 2 佐賀大学通り… 佐賀県佐賀…  佐賀県/佐賀市/…     5     5     (130.2923 33.24775)
+## 3 鳥栖プレミア… 佐賀県鳥栖…  佐賀県/鳥栖市/…     5     7     (130.5118 33.40625)</code></pre>
+</div>
+<div id="結果の図示-1" class="section level2" number="5.6">
+<h2><span class="header-section-number">5.6</span> 結果の図示</h2>
+<p>3通りの方法でジオコーディングした結果を全て地図に落としてみましょう。
+概ね同じ位置にプロットされますが，店舗によっては利用するサービスによってジオコーディングされた座標がかなり異なるようです。
+これまでの経験上，CSVアドレスマッチングサービスの精度は，他の2つと比較するとやや劣るように感じます。</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="30-geocoding.html#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_sf</span>(<span class="at">data =</span> map2, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb58-2"><a href="30-geocoding.html#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> starbucks_ge, <span class="at">color =</span> <span class="st">&quot;green&quot;</span>) <span class="sc">+</span></span>
+<span id="cb58-3"><a href="30-geocoding.html#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> starbucks_ya, <span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
+<span id="cb58-4"><a href="30-geocoding.html#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> starbucks_ut, <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>)</span></code></pre></div>
+<p><img src="gis-with-r_files/figure-html/starbucks-map-1.png" width="672" /></p>
 
 </div>
 </div>
