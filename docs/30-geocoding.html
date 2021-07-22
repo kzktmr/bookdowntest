@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>1 事前準備 | RでGIS</title>
-  <meta name="description" content="1 事前準備 | RでGIS" />
+  <title>5 ジオコーディング | RでGIS</title>
+  <meta name="description" content="5 ジオコーディング | RでGIS" />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="1 事前準備 | RでGIS" />
+  <meta property="og:title" content="5 ジオコーディング | RでGIS" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="kzktmr/giswithr" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="1 事前準備 | RでGIS" />
+  <meta name="twitter:title" content="5 ジオコーディング | RでGIS" />
   
   
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="index.html"/>
-<link rel="next" href="02-fundamental.html"/>
+<link rel="prev" href="20-distance.html"/>
+
 <script src="libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -190,35 +190,141 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="事前準備" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> 事前準備</h1>
-<div id="rとrstudioのインストール" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> RとRstudioのインストール</h2>
+<div id="ジオコーディング" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> ジオコーディング</h1>
+<div id="概要-2" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> 概要</h2>
+<p>ジオコーディング（geocoding）とは，住所を地理的座標（すなわち緯度と経度）に変換することです。
+<code>R</code>のみでジオコーディングを行うことは難しいので，
+ここでは，外部のサーピスやアプリを使ってジオコーディングを行ういくつかの方法を解説します。
+その結果を<code>R</code>に読み込み，GISデータとして分析に使用することを想定しています。</p>
+<p>本章で紹介する外部サービスは，</p>
 <ul>
-<li><a href="https://cran.ism.ac.jp">CRAN</a>からRをインストールしてください。</li>
-<li><a href="https://www.rstudio.com/products/rstudio/download/">RStudio</a>からRStudio Desktop
-(Open Source License)をインストールしてください。</li>
+<li>Google Earth Pro</li>
+<li>Yahoo!ジオコーダAPI</li>
+<li>CSVアドレスマッチングサービス（東京大学）</li>
 </ul>
+<p>の3つです。</p>
 </div>
-<div id="使用するパッケージについて" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> 使用するパッケージについて</h2>
-<ul>
-<li><a href="https://www.tidyverse.org"><code>tidyverse</code></a></li>
-<li><a href="https://r-spatial.github.io/sf/"><code>sf</code></a></li>
-</ul>
-<p>などを使用する予定です。事前にインストールしておいてください。パッケージのインストールには，RStudioのPackagesパネルからInstallする方法や，コンソールに</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="01-preparation.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;tidyverse&quot;</span>)</span></code></pre></div>
-<p>と入力する方法がありますが，どちらでも構いません。</p>
+<div id="データ" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> データ</h2>
+<p>佐賀県内のスターバックス店舗の住所一覧を，<a href="https://store.starbucks.co.jp">公式ウェブサイト</a>から作成しました。CSVファイルを<a href="https://gist.githubusercontent.com/kzktmr/e381b5e7d542687dcf07317c66351288/raw/0bf5bdb3a0fd0b48f873704c3971bf5726ff27f5/Starbucks_saga.csv">こちら</a>からダウンロードすることもできます。</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">shop</th>
+<th align="left">address</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">佐賀南バイパス店</td>
+<td align="left">佐賀県佐賀市本庄町袋306-6</td>
+</tr>
+<tr class="even">
+<td align="left">佐賀大学通り店</td>
+<td align="left">佐賀県佐賀市与賀町70-1</td>
+</tr>
+<tr class="odd">
+<td align="left">鳥栖プレミアム・アウトレット店</td>
+<td align="left">佐賀県鳥栖市弥生が丘8-1</td>
+</tr>
+<tr class="even">
+<td align="left">TSUTAYA鳥栖店</td>
+<td align="left">佐賀県鳥栖市本鳥栖町537-1</td>
+</tr>
+<tr class="odd">
+<td align="left">鳥栖蔵上町店</td>
+<td align="left">佐賀県鳥栖市蔵上町662-5</td>
+</tr>
+<tr class="even">
+<td align="left">基山パーキングエリア（上り線）店</td>
+<td align="left">佐賀県三養基郡基山町小倉2097-1</td>
+</tr>
+<tr class="odd">
+<td align="left">蔦屋書店武雄市図書館店</td>
+<td align="left">佐賀県武雄市武雄町武雄5304-1</td>
+</tr>
+<tr class="even">
+<td align="left">佐賀武雄店</td>
+<td align="left">佐賀県武雄市武雄町昭和277</td>
+</tr>
+<tr class="odd">
+<td align="left">金立サービスエリア（下り線）店</td>
+<td align="left">佐賀県佐賀市金立町金立1197-57</td>
+</tr>
+<tr class="even">
+<td align="left">ゆめタウン佐賀店</td>
+<td align="left">佐賀県佐賀市兵庫北5-14-1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="google-earth-pro" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> Google Earth Pro</h2>
+<p><a href="https://www.google.co.jp/intl/ja/earth/versions/#earth-pro">こちら</a>から，Google Earth Pro をダウンロード，インストールしてください。</p>
+<p>Google Earth を起動しまし，「ファイル」→「インポート…」から，<code>starbucks_saga.csv</code>を読み込みます。</p>
+<p><img src="images/import.png" width="932" /></p>
+<p>「ファイルのインポート ウィザード」ウィンドウが開きますので，指示に従って，入力ファイルの情報を設定します。
+設定が完了すると，データ読み込まれ，画面左の「場所」パネルに<code>starbucks_saga</code>と表示され，地図上にスターバックス店舗の位置がプロットされると思います。</p>
+<p>次に，この<code>starbucks_saga</code>を右クリックし，「名前を付けて場所を保存」を選択します。
+そして，ファイルを「Kml」形式で保存します。
+ここでは<code>starbucks_saga.kml</code>という名前で，<code>data</code>フォルダに保存しておきましょう。</p>
+<p><img src="images/export.png" width="1061" /></p>
+<p>ここからは，<code>R</code>での作業です。
+作成したKmlファイルを，<code>st_read</code>関数で読み込みます。</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="30-geocoding.html#cb39-1" aria-hidden="true" tabindex="-1"></a>starbucks_ge <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/starbucks_saga.kml&quot;</span>)</span></code></pre></div>
+<pre><code>## Reading layer `starbucks_saga&#39; from data source 
+##   `/Users/kazukitamura/github/giswithr/data/starbucks_saga.kml&#39; 
+##   using driver `KML&#39;
+## Simple feature collection with 10 features and 2 fields
+## Geometry type: POINT
+## Dimension:     XYZ
+## Bounding box:  xmin: 130.0229 ymin: 33.1888 xmax: 130.5296 ymax: 33.4408
+## z_range:       zmin: 0 zmax: 0
+## Geodetic CRS:  WGS 84</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="30-geocoding.html#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(starbucks_ge, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## Simple feature collection with 3 features and 2 fields
+## Geometry type: POINT
+## Dimension:     XYZ
+## Bounding box:  xmin: 130.2921 ymin: 33.23883 xmax: 130.5114 ymax: 33.40581
+## z_range:       zmin: 0 zmax: 0
+## Geodetic CRS:  WGS 84
+##                             Name Description                      geometry
+## 1               佐賀南バイパス店             POINT Z (130.2989 33.23883 0)
+## 2                 佐賀大学通り店             POINT Z (130.2921 33.24846 0)
+## 3 鳥栖プレミアム・アウトレット店             POINT Z (130.5114 33.40581 0)</code></pre>
+<p><code>geometry</code>が3次元になっていますので，気になるようでしたら，<code>st_zm</code>関数でZ次元を落としておいても良いと思います。</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="30-geocoding.html#cb43-1" aria-hidden="true" tabindex="-1"></a>starbucks_ge <span class="ot">&lt;-</span> <span class="fu">st_zm</span>(starbucks_ge)</span>
+<span id="cb43-2"><a href="30-geocoding.html#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(starbucks_ge, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## Simple feature collection with 3 features and 2 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: 130.2921 ymin: 33.23883 xmax: 130.5114 ymax: 33.40581
+## Geodetic CRS:  WGS 84
+##                             Name Description                  geometry
+## 1               佐賀南バイパス店             POINT (130.2989 33.23883)
+## 2                 佐賀大学通り店             POINT (130.2921 33.24846)
+## 3 鳥栖プレミアム・アウトレット店             POINT (130.5114 33.40581)</code></pre>
+</div>
+<div id="yahooジオコーダapi" class="section level2" number="5.4">
+<h2><span class="header-section-number">5.4</span> Yahoo!ジオコーダAPI</h2>
 
 </div>
 </div>
+
+
+
+
+
+
             </section>
 
           </div>
         </div>
       </div>
-<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="02-fundamental.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="20-distance.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

@@ -6,4 +6,5 @@ rmd_files:
   - 02-fundamental.Rmd
   - 10-choropleth.Rmd
   - 20-distance.Rmd
+  - 30-geocoding.Rmd
   

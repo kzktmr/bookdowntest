@@ -1,0 +1,66 @@
+# ジオコーディング
+
+## 概要
+
+ジオコーディング（geocoding）とは，住所を地理的座標（すなわち緯度と経度）に変換することです。
+`R`のみでジオコーディングを行うことは難しいので，
+ここでは，外部のサーピスやアプリを使ってジオコーディングを行ういくつかの方法を解説します。
+その結果を`R`に読み込み，GISデータとして分析に使用することを想定しています。
+
+本章で紹介する外部サービスは，
+
+* Google Earth Pro
+* Yahoo!ジオコーダAPI
+* CSVアドレスマッチングサービス（東京大学）
+
+の3つです。
+
+## データ
+
+佐賀県内のスターバックス店舗の住所一覧を，[公式ウェブサイト](https://store.starbucks.co.jp)から作成しました。CSVファイルを[こちら](https://gist.githubusercontent.com/kzktmr/e381b5e7d542687dcf07317c66351288/raw/0bf5bdb3a0fd0b48f873704c3971bf5726ff27f5/Starbucks_saga.csv)からダウンロードすることもできます。
+
+```{r starbucks-data,echo=FALSE,message=FALSE}
+knitr::kable(
+  read_csv("data/starbucks_saga.csv")
+)
+```
+
+## Google Earth Pro
+
+[こちら](https://www.google.co.jp/intl/ja/earth/versions/#earth-pro)から，Google Earth Pro をダウンロード，インストールしてください。
+
+Google Earth を起動しまし，「ファイル」→「インポート...」から，`starbucks_saga.csv`を読み込みます。
+
+```{r import-csv,echo=FALSE}
+knitr::include_graphics("images/import.png")
+```
+
+「ファイルのインポート ウィザード」ウィンドウが開きますので，指示に従って，入力ファイルの情報を設定します。
+設定が完了すると，データ読み込まれ，画面左の「場所」パネルに`starbucks_saga`と表示され，地図上にスターバックス店舗の位置がプロットされると思います。
+
+次に，この`starbucks_saga`を右クリックし，「名前を付けて場所を保存」を選択します。
+そして，ファイルを「Kml」形式で保存します。
+ここでは`starbucks_saga.kml`という名前で，`data`フォルダに保存しておきましょう。
+
+```{r export-kml,echo=FALSE}
+knitr::include_graphics("images/export.png")
+```
+
+ここからは，`R`での作業です。
+作成したKmlファイルを，`st_read`関数で読み込みます。
+
+```{r read-kml}
+starbucks_ge <- st_read("data/starbucks_saga.kml")
+head(starbucks_ge, 3)
+```
+
+`geometry`が3次元になっていますので，気になるようでしたら，`st_zm`関数でZ次元を落としておいても良いと思います。
+
+```{r drop-z}
+starbucks_ge <- st_zm(starbucks_ge)
+head(starbucks_ge, 3)
+```
+
+## Yahoo!ジオコーダAPI
+
+
