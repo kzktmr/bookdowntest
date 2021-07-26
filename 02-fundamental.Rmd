@@ -2,16 +2,20 @@
 
 ## GISデータのフォーマット
 
-現在流通しているGISデータのファイル形式のうち，代表的な以下の2つを紹介します。
+現在流通しているGISデータのファイル形式のうち，代表的な以下の3つを紹介します。
 
 * シェープファイル
 * GeoJSON
+* KML
 
 シェープファイルは現在デファクトスタンダードとなっているGISデータのファイル形式で，
 ESRI社（ArcGISなどのGIS製品で有名）によって開発・規格化されました。
 
 GeoJSONは，JSON（JavaScript Object Notation）を元に開発されたフォーマットです。
 GeoJSONのファイルはテキストファイルなので，テキストエディタで閲覧・編集することも可能です。
+
+KMLは，地理情報をXML（eXtensible Markup Language）で記述します。
+Google Earthのファイル入出力に利用されたことで広まりました（KMLのKは，Google Earthの旧称であるKeyholeに由来するようです）。
 
 ### Simple Featuresとは
 
@@ -22,7 +26,6 @@ Open Geospatial Consortium (OGC)とInternational Organization for Standardizatio
 このSimple Featuresを`R`で実現するためのパッケージが`sf`です。
 
 ## 測地系
-
 
 * [日本の測地系](https://www.gsi.go.jp/sokuchikijun/datum-main.html)
 

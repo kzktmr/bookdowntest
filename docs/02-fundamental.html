@@ -24,7 +24,7 @@
 <meta name="author" content="Kazuki Tamura (@kzktmr)" />
 
 
-<meta name="date" content="2021-07-22" />
+<meta name="date" content="2021-07-26" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -196,15 +196,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">2</span> GISの基礎知識</h1>
 <div id="gisデータのフォーマット" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> GISデータのフォーマット</h2>
-<p>現在流通しているGISデータのファイル形式のうち，代表的な以下の2つを紹介します。</p>
+<p>現在流通しているGISデータのファイル形式のうち，代表的な以下の3つを紹介します。</p>
 <ul>
 <li>シェープファイル</li>
 <li>GeoJSON</li>
+<li>KML</li>
 </ul>
 <p>シェープファイルは現在デファクトスタンダードとなっているGISデータのファイル形式で，
 ESRI社（ArcGISなどのGIS製品で有名）によって開発・規格化されました。</p>
 <p>GeoJSONは，JSON（JavaScript Object Notation）を元に開発されたフォーマットです。
 GeoJSONのファイルはテキストファイルなので，テキストエディタで閲覧・編集することも可能です。</p>
+<p>KMLは，地理情報をXML（eXtensible Markup Language）で記述します。
+Google Earthのファイル入出力に利用されたことで広まりました（KMLのKは，Google Earthの旧称であるKeyholeに由来するようです）。</p>
 <div id="simple-featuresとは" class="section level3" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> Simple Featuresとは</h3>
 <p>Simple Features（正式にはSimple Feature Access）は，
