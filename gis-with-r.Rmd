@@ -1,0 +1,449 @@
+---
+title: "RでGIS"
+author: "Kazuki Tamura (@kzktmr)"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+github-repo: kzktmr/giswithr
+---
+
+# はじめに {-}
+
+この資料では，Rで地理情報データを扱う方法について，解説します。
+
+
+<!--chapter:end:index.Rmd-->
+
+# 事前準備
+
+## RとRstudioのインストール
+
+* [CRAN](https://cran.ism.ac.jp)からRをインストールしてください。
+* [RStudio](https://www.rstudio.com/products/rstudio/download/)からRStudio Desktop
+(Open Source License)をインストールしてください。
+
+## 使用するパッケージについて
+
+* [`tidyverse`](https://www.tidyverse.org)
+* [`sf`](https://r-spatial.github.io/sf/)
+
+などを使用する予定です。事前にインストールしておいてください。パッケージのインストールには，RStudioのPackagesパネルからInstallする方法や，コンソールに
+```{r install_package, eval=FALSE}
+install.packages("tidyverse")
+```
+と入力する方法がありますが，どちらでも構いません。
+
+<!--chapter:end:01-preparation.Rmd-->
+
+# GISの基礎知識
+
+## GISデータのフォーマット
+
+現在流通しているGISデータのファイル形式のうち，代表的な以下の3つを紹介します。
+
+* シェープファイル
+* GeoJSON
+* KML
+
+シェープファイルは現在デファクトスタンダードとなっているGISデータのファイル形式で，
+ESRI社（ArcGISなどのGIS製品で有名）によって開発・規格化されました。
+
+GeoJSONは，JSON（JavaScript Object Notation）を元に開発されたフォーマットです。
+GeoJSONのファイルはテキストファイルなので，テキストエディタで閲覧・編集することも可能です。
+
+KMLは，地理情報をXML（eXtensible Markup Language）で記述します。
+Google Earthのファイル入出力に利用されたことで広まりました（KMLのKは，Google Earthの旧称であるKeyholeに由来するようです）。
+
+### Simple Featuresとは
+
+Simple Features（正式にはSimple Feature Access）は，
+GISで使用される点・線・多角形などの幾何学図形からなるGISデータの，コンピュータ内部での保存およびアクセス方法に関する標準規格です。
+Open Geospatial Consortium (OGC)とInternational Organization for Standardization (ISO)によって規格化されています。
+
+このSimple Featuresを`R`で実現するためのパッケージが`sf`です。
+
+## 測地系
+
+* [日本の測地系](https://www.gsi.go.jp/sokuchikijun/datum-main.html)
+
+## 地図投影変換
+
+* [平面直角座標系](https://www.gsi.go.jp/sokuchikijun/jpc.html)
+
+### EPSGコード
+
+世界の様々な測地系や地図投影法に対して，ユニークなID 番号を振り分けたものです。
+International Association of Oil ＆ Gas Producers (IOGP）のGeomatics Committeeによって管理されています。
+[epsg.org](https://epsg.org)，[epsg.io](https://epsg.io)
+などのサイトでEPSGコードを検索することができます。
+
+
+
+<!--chapter:end:02-fundamental.Rmd-->
+
+# コロプレス・マップ（塗り分け地図）
+  
+## 概要
+
+コロプレスマップ（塗り分け地図）を作成する方法を説明します。
+佐賀県の市町村別人口密度の塗り分け地図を作成しましょう。
+
+## データの準備
+
+「[佐賀県オープンデータカタログサイト](https://odcs.bodik.jp/410004)」にある「[オープンデータマップ用データセット](https://data.bodik.jp/dataset/410004_opendatamap)」を使用します。
+
+* 男女別人口総数及ひ世帯総数（市町村別）
+* ポリゴン（市町村別）
+
+上記2つのファイル（`410004saga.xlsx`と`410004saga.geojson`）をダウンロードしてください。
+ワーキングディレクトリの直下に`data`フォルダを作成し，ダウンロードしたファイルを保存してください（今後，GISデータはこのフォルダに保存することにしましょう）。
+
+## 地図の描画
+まず，使用するライブラリを読み込みます。ここでは，`tidyverse`（地図の描画に使う`ggplot2`ライブラリが含まれています）に加えて，GISデータを扱うライブラリ`sf`を使用します。
+
+```{r library}
+library(tidyverse)
+library(sf)
+```
+
+次に，先ほど`data`フォルダに保存した`410004saga.geojson`を，
+`sf`ライブラリの`st_read`関数を使って読み込みます。
+
+```{r read_map_data}
+map <- st_read("data/410004saga.geojson")
+```
+
+読み込んだ`map`データをプロットします。
+
+```{r plot-base-map,cache=TRUE}
+ggplot() + geom_sf(data = map) 
+```
+
+できました。簡単ですね。
+
+## 地図投影変換
+
+先ほど表示された佐賀県の地図は，横軸に経度を，縦軸に緯度をとった平面にプロットしたものでした。
+これを「平面直角座標系」に変換して，表示してみましょう。
+
+```{r projection-map,cache=TRUE}
+map2 <- st_transform(map, 6670)
+ggplot() + geom_sf(data = map2) 
+```
+
+微妙な違いがわかりますか？
+
+## 統計データによる塗り分け
+
+まず，利用する統計データを読み込み，中身を確認してみましょう。
+Excelファイルを読み込むのに，`readxl`ライブラリの`read_excel`関数を使います。
+
+```{r read-data}
+library(readxl)
+dat <- read_excel("data/410004saga.xlsx")
+head(dat, 3)
+```
+
+ここで，先ほど地図を描くのに使ったデータの中身もみてみましょう。
+
+```{r map-data}
+head(map2, 3)
+```
+
+両方のデータに`KEY_CODE`という同じデータがあるのがわかります。
+これをキーにして，2つのデータを結合します。
+
+```{r left-join}
+dat2 <- left_join(map2, dat)
+head(dat2)
+```
+
+このように，対応する2つのデータを結合するときには，`dplyr`ライブラリの`left_join`関数が便利です。この関数が2つのデータに共通の列名を自動的に見つけて，そのデータに基づいて2つのデータを結合してくれます。これで，地図データに人口や世帯数のデータを結びつけることができました。
+
+この章の目的は，人口密度のコロプレスマップを作ることですので，市町村の面積データが必要です。先ほどと同様に，別のところから面積データを持ってきでjoinしてもいいのですが，ここでは地図データから面積を計算してみましょう。`sf`ライブラリの`st_area`関数を使います。
+
+```{r area}
+dat2$area <- st_area(dat2)
+dat2$area <- units::set_units(dat2$area, km^2) 
+dat2$area <- units::drop_units(dat2$area)
+dat2$density <- dat2$人口総数 / dat2$area
+head(dat2)
+```
+
+平面直角座標系の距離がm単位になっていますので，`st_area`で計算した面積はm^2^単位になっています。
+そこで，units`ライブラリの`set_units関数で，km^2^単位に変換しています。
+さらに，人口密度を計算するときに単位が邪魔なので，`drop_units`関数で単位を落としています。
+
+さて，塗り分け地図を描くには，`geom_sf`の中で，densityでfillしろと指示するだけです。
+2行目は塗り潰しの色（カラーパレット）を指定しています。
+
+```{r choropleth-map,cache=TRUE}
+ggplot() + geom_sf(mapping = aes(fill = density), data = dat2) +
+  colorspace::scale_fill_continuous_sequential("YlGn")
+```
+
+<!--chapter:end:10-choropleth.Rmd-->
+
+# 地点間の距離
+
+## 概要
+
+この章では，GISデータを用いて地点間の距離（直線距離・大圏距離）を測る方法を説明します。
+佐賀県庁から，佐賀県の各市役所・町役場までの距離を求めてみましょう。
+
+## データの準備
+
+市町の座標データは，国土交通省の「[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/)」で提供されているシェープファイルを使います。
+「3.地域」「施設」にある「[市区町村役場](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P34.html)」から，佐賀県のデータをダウンロードしてください。
+ダウンロードしたzipファイルを解凍し，できた`P34-14_41_GML`フォルダごと`data`フォルダに入れてください。
+このように，`GeoJSON`と異なり，シェープファイルは複数のファイルから構成されていることがわかります。
+
+さて，このデータを読み込むのも，`st_read`関数です。
+関数の引数にフォルダを指定すれば，シェープファイルを読み込んでくれます
+（Windowsで作業する場合は，`options`引数は必要ないかもしれません）。
+
+```{r read-shapefile}
+city <- st_read("data/P34-14_41_GML/", options = "ENCODING=cp932")
+head(city, 3)
+```
+
+読み込んだデータの中身を見ると，`P34_001`から`P34_004`までのデータ列と，位置情報である`geometry`列があることがわかります。
+P34から始まるデータ列の意味を知りたい場合は，先ほどの[ウェブページ](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P34.html)の「属性情報」欄をご覧ください。
+順番に「行政区域コード」「施設分類」「名称」「所在地」のデータであることがわかります。
+
+「[施設分類](https://nlftp.mlit.go.jp/ksj/gml/codelist/PubOfficeClassCd.html)」は，1が「本庁（市役所、区役所、町役場、村役場）」，2が「支所、出張所、連絡所」を意味しますが，今回の作業に必要なのは本庁のデータだけなので，そのデータだけ抜き出します。
+これは，`dplyr`ライブラリの`filter`関数を使うことで実現できます。
+
+```{r filter-OfficeClass}
+city <- filter(city, P34_002 == 1)
+head(city, 3)
+```
+
+次に，佐賀県庁の位置データを準備します。
+市町のデータと同じように，国土数値情報などのデータを利用してもよいですが，
+ここでは，データを手作りしてみましょう。
+
+ウェブブラウザで[地理院地図](https://maps.gsi.go.jp)を開き，ページ上部の検索ボックスから「佐賀県庁舎」を検索してください。
+検索結果欄から「佐賀県庁舎」をクリックすると，佐賀県庁舎を中心とした地図が表示されますので，さらに画面中央の旗アイコンをクリックすると，佐賀県庁舎の緯度軽度が表示されます。
+
+```{r gsi-map,echo=FALSE}
+knitr::include_graphics("images/gsi-map.png")
+```
+
+この緯度軽度の数字から，以下のように`st_sf`などの関数を使って，`sf`オブジェクトを作成します。
+さらに，日本測地系（JGD2000，EPSGコード：4612）を指定します
+^[細かいことを言えば，[地理院地図の測地系はJGD2011](https://maps.gsi.go.jp/help/howtouse.html)なのですが，西日本地域では両者に差がないので，国土数値情報のデータに合わせて，JDG2000にしておきます。]。   
+
+```{r pref-data}
+geometry <- st_sfc(st_point(c(130.2991337, 33.24936696)))
+pref <- st_sf(name = "佐賀県庁舎", geometry)
+st_crs(pref) <- 4612
+pref
+```
+
+## 距離の計算
+
+このように，佐賀県内市町と佐賀県庁の座標データが準備できましたので，距離を計算するわけですが，これは`sf`ライブラリの`st_distance`関数で求めることができます。
+
+```{r distance}
+st_distance(city, pref)
+```
+
+この結果を，単位をkmに直したのち，`city`データの`distance`列として距離データを追加します。
+
+```{r add-distance-to-city}
+dist <- st_distance(city, pref)
+dist <- units::set_units(dist, km)
+city$distance <- as.numeric(dist)
+head(city, 3)
+```
+
+## 結果の図示
+
+佐賀県内市町の，佐賀県庁からの距離と人口密度の関係を散布図にしてみましょう。
+まず，人口密度と距離が別々のデータに入っているので，それらを結合します。
+結合に使う市町村コードが少し違う（佐賀県オープンデータの市町村コードには6桁目にチェックディジットが入っている）ので，小細工しています。
+
+```{r bind-data}
+dat3 <- st_drop_geometry(dat2)
+dat3$KEY_CODE2 <- str_sub(dat3$KEY_CODE, 1, 5)
+dat3 <- left_join(dat3, city, by = c("KEY_CODE2" = "P34_001"))
+head(dat3, 3)
+```
+
+データができたので，散布図を作成します（Windowsの場合は，`family`引数は必要ないかもしれません）。
+
+```{r dist-dens-plot,cache=TRUE}
+library(ggrepel)
+ggplot(dat3, aes(x = distance, y = density)) + geom_point() +
+  geom_text_repel(aes(label = 市区町村), family = "HiraginoSans-W3") 
+```
+
+ついでに，市町（`city`）と県庁（`pref`）の位置を，地図に落としてみましょう。
+
+```{r city-map,cache=TRUE}
+ggplot() + geom_sf(data = map2) + 
+  geom_sf(data = city, color = "blue") + geom_sf(data = pref, color = "red")
+```
+
+<!--chapter:end:20-distance.Rmd-->
+
+# ジオコーディング
+
+## 概要
+
+ジオコーディング（geocoding）とは，住所（の文字列）を地理的座標（すなわち緯度と経度）に変換することです。
+`R`のみでジオコーディングを行うことは難しいので，
+ここでは，外部のサーピスやアプリを使ってジオコーディングを行ういくつかの方法を解説します。
+その結果を`R`に読み込み，GISデータとして分析に使用することを想定しています。
+
+本章で紹介する外部サービスは，
+
+* Google Earth Pro
+* Yahoo!ジオコーダAPI
+* CSVアドレスマッチングサービス（東京大学）
+
+の3つです。
+
+## データ
+
+佐賀県内のスターバックス店舗の住所一覧を，[公式ウェブサイト](https://store.starbucks.co.jp/pref/saga/)から作成しました。CSVファイルを[こちら](https://gist.githubusercontent.com/kzktmr/e381b5e7d542687dcf07317c66351288/raw/0bf5bdb3a0fd0b48f873704c3971bf5726ff27f5/Starbucks_saga.csv)からダウンロードすることもできます。
+
+```{r starbucks-data,echo=FALSE,message=FALSE}
+knitr::kable(
+  read_csv("data/starbucks_saga.csv")
+)
+```
+
+## Google Earth Pro
+
+[こちら](https://www.google.co.jp/intl/ja/earth/versions/#earth-pro)から，Google Earth Pro をダウンロード，インストールしてください。
+
+Google Earth を起動しまし，「ファイル」→「インポート...」から，`starbucks_saga.csv`を読み込みます。
+
+```{r import-csv,echo=FALSE}
+knitr::include_graphics("images/import.png")
+```
+
+「ファイルのインポート ウィザード」ウィンドウが開きますので，指示に従って，入力ファイルの情報を設定します。
+設定が完了すると，データ読み込まれ，画面左の「場所」パネルに`starbucks_saga`と表示され，地図上にスターバックス店舗の位置がプロットされると思います。
+
+次に，この`starbucks_saga`を右クリックし，「名前を付けて場所を保存」を選択します。
+そして，ファイルを「Kml」形式で保存します。
+ここでは`starbucks_saga.kml`という名前で，`data`フォルダに保存しておきましょう。
+
+```{r export-kml,echo=FALSE}
+knitr::include_graphics("images/export.png")
+```
+
+ここからは，`R`での作業です。
+作成したKmlファイルを，`st_read`関数で読み込みます。
+
+```{r read-kml}
+starbucks_ge <- st_read("data/starbucks_saga.kml")
+head(starbucks_ge, 3)
+```
+
+`geometry`が3次元になっていますので，気になるようでしたら，`st_zm`関数でZ次元を落としておいても良いと思います。
+
+```{r drop-z}
+starbucks_ge <- st_zm(starbucks_ge)
+head(starbucks_ge, 3)
+```
+
+## Yahoo!ジオコーダAPI
+
+Yahoo Japanが提供しているAPIを使ってジオコーディングを行います。
+Yahoo! JAPAN IDを持っていない人は[取得](https://account.edit.yahoo.co.jp/signup)してください。
+
+Yahoo Japanにログインし，[こちら](https://e.developer.yahoo.co.jp/register)からアプリケーションを登録し、アプリケーションIDを発行してください（アプリケーションの種類は「クライアントサイド」にしてください）。
+
+アプリケーションIDの管理には，`keyring`パッケージが便利です。
+Windowsなら資格情報マネージャー，macosならKeychainを利用してIDやパスワードを管理することができます。
+`key_set`関数を実行すると，パスワード入力欄が表示されますので，先ほど取得したアプリケーションIDを入力します。
+
+```{r keyring}
+library(keyring)
+# key_set("yahoo_api")
+```
+
+まず，`starbucks_saga.csv`を読み込みましょう。
+
+```{r read_starbucks}
+starbucks <- read_csv("data/starbucks_saga.csv")
+```
+
+`R`からwebAPIを操作するには，`httr`パッケージが便利です。
+`geocoidng`という関数を定義しました。
+
+```{r new_function}
+library(httr)
+geocoding <- function(address){
+  tmp <- GET(url = "https://map.yahooapis.jp/geocode/V1/geoCoder?",
+             query = list(
+               appid = keyring::key_get("yahoo_api"),
+               query = address,
+               output = "json"
+               )
+             ) # APIの結果を受け取る
+  tmp <- content(tmp)
+  tmp <- tmp$Feature[[1]]$Geometry$Coordinates # 緯度軽度の部分を抜き出す
+  tmp <- str_split_fixed(tmp, ",", 2)          
+  tmp <- as_tibble(tmp)
+  tmp <- type_convert(tmp)
+  tmp <- set_names(tmp, c("lon", "lat"))
+  return(tmp)
+}
+```
+
+定義した関数を使って，ジオコーディングを行い，緯度軽度のデータを追加します。
+
+```{r geocoding,cache=TRUE,message=FALSE}
+lonlat <- map_df(starbucks$address, geocoding)
+starbucks_ya <- bind_cols(starbucks, lonlat)
+```
+
+さらに，これをSimple Featureに変換します。
+
+```{r yahoo_sfc}
+starbucks_ya <- st_as_sf(starbucks_ya, coords = c("lon", "lat"), crs = 6668)
+head(starbucks_ya, 3)
+```
+
+## CSVアドレスマッチングサービス
+
+これは，東京大学空間情報科学研究センターが提供するwebサービスで，
+住所を含むcsvファイルに，緯度経度を追加して返してくれます
+（詳しくは[こちら](https://geocode.csis.u-tokyo.ac.jp/home/csv-admatch/)）。
+
+[こちら](https://geocode.csis.u-tokyo.ac.jp/geocode-cgi/geocode.cgi?action=start)のページにアクセスし，必要な情報を入力します。
+
+```{r csv-geocoding,echo=FALSE}
+knitr::include_graphics("images/csv-geocoding.png")
+```
+
+帰ってきたファイルを，`starbucks_geocoding.csv`と名前を変えて，`data`フォルダに置きましょう。
+
+このファイルを`R`で読み込み，あとは先ほどと同様にSimple Feature変換すれば作業終了です。
+
+```{r ut-sfc}
+starbucks_ut <- read_csv("data/starbucks_geocoding.csv")
+starbucks_ut <- st_as_sf(starbucks_ut, coords = c("fX", "fY"), crs = 6668)
+head(starbucks_ut, 3)
+```
+
+## 結果の図示
+
+3通りの方法でジオコーディングした結果を全て地図に落としてみましょう。
+概ね同じ位置にプロットされますが，店舗によっては利用するサービスによってジオコーディングされた座標がかなり異なるようです。
+これまでの経験上，CSVアドレスマッチングサービスの精度は，他の2つと比較するとやや劣るように感じます。
+
+```{r starbucks-map,cache=TRUE}
+ggplot() + geom_sf(data = map2, fill = "white") + 
+  geom_sf(data = starbucks_ge, color = "green") +
+  geom_sf(data = starbucks_ya, color = "red") +
+  geom_sf(data = starbucks_ut, color = "blue")
+```
+
+
+<!--chapter:end:30-geocoding.Rmd-->
+
