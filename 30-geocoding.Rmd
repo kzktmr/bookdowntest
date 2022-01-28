@@ -17,7 +17,7 @@
 
 ## データ
 
-佐賀県内のスターバックス店舗の住所一覧を，[公式ウェブサイト](https://store.starbucks.co.jp)から作成しました。CSVファイルを[こちら](https://gist.githubusercontent.com/kzktmr/e381b5e7d542687dcf07317c66351288/raw/0bf5bdb3a0fd0b48f873704c3971bf5726ff27f5/Starbucks_saga.csv)からダウンロードすることもできます。
+佐賀県内のスターバックス店舗の住所一覧を，[公式ウェブサイト](https://store.starbucks.co.jp/pref/saga/)から作成しました。CSVファイルを[こちら](https://gist.githubusercontent.com/kzktmr/e381b5e7d542687dcf07317c66351288/raw/0bf5bdb3a0fd0b48f873704c3971bf5726ff27f5/Starbucks_saga.csv)からダウンロードすることもできます。
 
 ```{r starbucks-data,echo=FALSE,message=FALSE}
 knitr::kable(
